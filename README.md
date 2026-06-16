@@ -6,13 +6,13 @@ A terminal-based Expense Tracker application built using Python.
 * View all recorded expenses
 * Filter expenses by date or category
 * Monthly expense report with per-category breakdown
-* Persistent storage using Python's pickle module
+* Persistent storage using Python's json module
 
 ## Concepts Used
 * Functions
 * Lists and Dictionaries
 * File Handling
-* Data Persistence with Pickle
+* Data Persistence with JSON
 * Loops and Conditionals
 
 ## How to Run
@@ -22,7 +22,6 @@ python main.py
 
 ## Future Improvements
 * Exception handling for invalid inputs
-* Export reports to CSV or JSON
-* Use JSON instead of pickle for storage
+* Export reports to CSV
 * Edit or delete existing expenses
 * Add graphical insights using matplotlib

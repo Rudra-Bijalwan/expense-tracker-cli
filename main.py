@@ -1,5 +1,5 @@
 # DONE apart from exception handling
-import pickle
+import json
 from datetime import date
 from typing import Literal
 from pathlib import Path
@@ -9,7 +9,7 @@ APP_DIR = Path.home() / "ExpenseTracker"
 DATA_DIR = APP_DIR / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-EXPENSE_FILE = DATA_DIR / "expenses.dat"
+EXPENSE_FILE = DATA_DIR / "expenses.json"
 
 # To prompt user to select an option and execute it
 def show_options():
@@ -25,7 +25,7 @@ def show_options():
 # to filter by either date or category. add parameter while using it in show options
 def filter_by_parameter(parameter: Literal["date", "category"]):
     
-    with open(EXPENSE_FILE, 'rb') as f:
+    with open(EXPENSE_FILE, 'r') as f:
         total_expense_for_parameter = 0
         if parameter == "date":
             i = 3
@@ -36,14 +36,11 @@ def filter_by_parameter(parameter: Literal["date", "category"]):
             category = input("Enter the required category for displaying expenses: ")
             req_parameter = category.capitalize()
 
-        while True:
-            try:
-                data = pickle.load(f)
-                if data[i] == req_parameter:
-                    total_expense_for_parameter += data[1]
-                    print(f"{data}")
-            except EOFError:
-                break
+        data = json.load(f)
+        if data[i] == req_parameter:
+            total_expense_for_parameter += data[1]
+            print(f"{data}")
+
     print(f"The total expense for the {parameter} {req_parameter} is {total_expense_for_parameter}")
     print()
 
@@ -85,8 +82,8 @@ def ask_expense():
         current_date = date.today().strftime("%d-%m-%Y")
         data = [category.capitalize(), amount, remarks, current_date]
 
-        with open(EXPENSE_FILE, "ab") as f:
-            pickle.dump(data, f)
+        with open(EXPENSE_FILE, "a") as f:
+            json.dump(data, f)
         print("Expense recorded succeefully")
 
         more = input("Add more expenses? [y/n]")
@@ -95,18 +92,14 @@ def ask_expense():
 # shows the total monthly expense along with the total expense for each category in the month
 def show_monthly_expense_report():
     month = input("Enter the month and year in MM-YYYY format to get the expense report for the month: ")
-    with open(EXPENSE_FILE, 'rb') as f:
+    with open(EXPENSE_FILE, 'r') as f:
         total_expense_for_month = 0
         category_total = {"Food":0,"Transport":0,"Shopping":0,"Entertainment":0,"Bills":0,"Health":0,"Education":0,"Groceries":0,"Rent":0,"Travel":0,"Savings":0,"Gifts":0,"Subscriptions":0,"Personal Care":0,"Miscellaneous":0}
 
-        while True:
-            try:
-                data = pickle.load(f)
-                if data[3].endswith(month):
-                    total_expense_for_month += data[1]
-                    category_total[data[0]] += data[1]
-            except EOFError:
-                break
+        data = json.load(f)
+        if data[3].endswith(month):
+            total_expense_for_month += data[1]
+            category_total[data[0]] += data[1]
     
     print(f"The total expenditure of the month is Rs. {total_expense_for_month} ")
     print(category_total)
@@ -114,13 +107,9 @@ def show_monthly_expense_report():
 
 # displays all the recorded expenses and the total of the expenses
 def show_all_expenses():
-    with open(EXPENSE_FILE, 'rb') as f:
-        while True:
-            try:
-                data = pickle.load(f)
-                print(data)
-            except EOFError:
-                break
+    with open(EXPENSE_FILE, 'r') as f:
+        data = json.load(f)
+        print(data)
     print()
 
 if __name__ == "__main__":
