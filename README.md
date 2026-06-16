@@ -25,3 +25,4 @@ python main.py
 * Export reports to CSV or JSON
 * Use JSON instead of pickle for storage
 * Edit or delete existing expenses
+* Add graphical insights using matplotlib
