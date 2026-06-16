@@ -70,7 +70,15 @@ def display_categories():
 def ask_expense():
     more = 'y'
     while more.lower() == 'y':
-        amount = int(input("Enter amount spent: "))
+        try:
+            amount = int(input("Enter amount spent: "))
+            if amount <= 0:
+                print("Amount should be a natural number!\n")
+                return
+        except ValueError:
+            print("Amount should be a natural number!\n")
+            return
+
         display_categories()
         category = input("Enter the category of the expense from the above options: ").capitalize()
         remarks = input("Enter remarks for this expenditure: ")
@@ -117,24 +125,31 @@ def show_all_expenses():
 
 if __name__ == "__main__":
     while True:
-        show_options()
-        selected_option = int(input("Enter the option: "))
-        print()
+        
+        try:
+            show_options()
+            selected_option = int(input("Enter the option: "))
+            print()
 
-        if selected_option == 1:
-            ask_expense()
+            if selected_option == 1:
+                ask_expense()
 
-        elif selected_option == 2:
-            show_all_expenses()
+            elif selected_option == 2:
+                show_all_expenses()
 
-        elif selected_option == 3:
-            filter_by_parameter("date")
+            elif selected_option == 3:
+                filter_by_parameter("date")
 
-        elif selected_option == 4:
-            filter_by_parameter("category")
+            elif selected_option == 4:
+                filter_by_parameter("category")
 
-        elif selected_option == 5:
-            show_monthly_expense_report()
+            elif selected_option == 5:
+                show_monthly_expense_report()
 
-        elif selected_option == 6:
-            break
+            elif selected_option == 6:
+                break
+            elif selected_option not in (1,7):
+                print("Please enter a valid option!\n")
+
+        except ValueError:
+            print("Please enter a valid option!\n")
