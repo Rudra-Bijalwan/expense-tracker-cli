@@ -11,6 +11,22 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 EXPENSE_FILE = DATA_DIR / "expenses.json"
 
+categories = ["Food", "Transport", "Shopping", "Entertainment", "Bills", "Health", "Education", "Groceries", "Rent", "Travel", "Savings", "Gifts", "Subscriptions", "Personal Care", "Miscellaneous"]
+
+# to read the json file
+def load_file():
+
+    if not EXPENSE_FILE.exists():
+        return[]
+    else:
+        with open(EXPENSE_FILE, 'r') as f:
+            return json.load(f)
+        
+# to save the expenses into the json file
+def save_expenses(expenses):
+    with open(EXPENSE_FILE, 'w') as f:
+        json.dump(expenses, f, indent=2)
+
 # To prompt user to select an option and execute it
 def show_options():
     print("""Hello User! Select one of the numbers below to execute the corresponding option: 
@@ -24,25 +40,29 @@ def show_options():
 
 # to filter by either date or category. add parameter while using it in show options
 def filter_by_parameter(parameter: Literal["date", "category"]):
+    expenses = load_file()
+    total_expense_for_parameter = 0
+
+    if parameter == "date":
+        req_parameter = input("Enter the date for which total expense is required in DD-MM-YYYY format: ")
+
+    elif parameter == "category":
+        display_categories()
+        req_parameter = input("Enter the category for which total expense is required: ").capitalize()
+
+        if req_parameter not in categories:
+            print("Please enter a valid category!\n")
+            return
+        
+    for expense in expenses:
+        if expense[parameter] == req_parameter:
+            total_expense_for_parameter += expense["amount"]
     
-    with open(EXPENSE_FILE, 'r') as f:
-        total_expense_for_parameter = 0
-        if parameter == "date":
-            i = 3
-            req_parameter = input("Enter the date for which expenditure is required in DD-MM-YYYY format: ")
-        elif parameter == "category":
-            i = 0
-            display_categories()
-            category = input("Enter the required category for displaying expenses: ")
-            req_parameter = category.capitalize()
+    if total_expense_for_parameter == 0:
+        print(f"No expense found for the {parameter} '{req_parameter}'! (Or the {parameter} '{req_parameter}' is not valid.)\n")
+    else:
 
-        data = json.load(f)
-        if data[i] == req_parameter:
-            total_expense_for_parameter += data[1]
-            print(f"{data}")
-
-    print(f"The total expense for the {parameter} {req_parameter} is {total_expense_for_parameter}")
-    print()
+        print(f"The total expense for the {parameter} {req_parameter} is {total_expense_for_parameter}\n")
 
 # not for the user but req in the program as it might be repititve
 def display_categories():
@@ -61,55 +81,77 @@ def display_categories():
 12. Gifts
 13. Subscriptions
 14. Personal Care
-15. Miscellaneous''')
+15. Miscellaneous\n''')
 
 # To prompt the user to enter an expenditure amount, the category of the expense and any remarks for that expense and store the expense by category
 def ask_expense():
     more = 'y'
     while more.lower() == 'y':
         try:
-            amount = int(input("Enter amount spent: "))
+            amount = float(input("Enter amount spent: "))
             if amount <= 0:
-                print("Amount should be a natural number!\n")
+                print("Amount should be a positive number!\n")
                 return
         except ValueError:
-            print("Amount should be a natural number!\n")
-            return
+                print("Amount should be a positive number!\n")
+                return
 
         display_categories()
-        category = input("Enter the category of the expense from the above options: ").capitalize()
+
+        while True:
+            category = input("Enter the category of the expense from the above options: ").capitalize()
+            if category not in categories:
+                print("Please enter a valid category!\n")
+            else:
+                break
+
         remarks = input("Enter remarks for this expenditure: ")
         current_date = date.today().strftime("%d-%m-%Y")
-        data = [category.capitalize(), amount, remarks, current_date]
+        data = {"category": category.capitalize(), "amount": amount, "remarks": remarks, "date": current_date}
 
-        with open(EXPENSE_FILE, "a") as f:
-            json.dump(data, f)
-        print("Expense recorded succeefully")
-
-        more = input("Add more expenses? [y/n]")
-    print()
+        expenses = load_file()
+        expenses.append(data)
+        save_expenses(expenses)
+        
+        print("Expense recorded succeefully\n")
+        while True:
+            more = input("Add more expenses? [y/n]")
+            if more.lower() in ('y','n'):
+                print()
+                break
+            else:
+                print("Please enter a valid answer [y/n]\n")
 
 # shows the total monthly expense along with the total expense for each category in the month
 def show_monthly_expense_report():
     month = input("Enter the month and year in MM-YYYY format to get the expense report for the month: ")
-    with open(EXPENSE_FILE, 'r') as f:
-        total_expense_for_month = 0
-        category_total = {"Food":0,"Transport":0,"Shopping":0,"Entertainment":0,"Bills":0,"Health":0,"Education":0,"Groceries":0,"Rent":0,"Travel":0,"Savings":0,"Gifts":0,"Subscriptions":0,"Personal Care":0,"Miscellaneous":0}
+    print()
+    expenses = load_file()
+    total_expense_for_month = 0
 
-        data = json.load(f)
-        if data[3].endswith(month):
-            total_expense_for_month += data[1]
-            category_total[data[0]] += data[1]
+    category_total = {category: 0 for category in categories}
+
+    for expense in expenses:
+        if expense["date"].endswith(month):
+            total_expense_for_month += expense["amount"]
+
+            for category in categories:
+                if category == expense["category"]:
+                    category_total[category] += expense["amount"]
     
-    print(f"The total expenditure of the month is Rs. {total_expense_for_month} ")
-    print(category_total)
+    print(f"The total expenditure of the month is Rs. {total_expense_for_month}\n")
+
+    for category in category_total:
+        print(f"Rs. {category_total[category]} was spent on {category}")
     print()
 
 # displays all the recorded expenses and the total of the expenses
 def show_all_expenses():
-    with open(EXPENSE_FILE, 'r') as f:
-        data = json.load(f)
-        print(data)
+    expenses = load_file()
+    expenses.reverse()
+    
+    for expense in expenses:
+        print(f"{expense["amount"]}, spent for {expense["category"]} on {expense["date"]}.\nRemark: {expense["remarks"]}\n")
     print()
 
 if __name__ == "__main__":
@@ -137,8 +179,8 @@ if __name__ == "__main__":
 
             elif selected_option == 6:
                 break
-            elif selected_option not in (1,7):
+            elif selected_option not in range(1,7):
                 print("Please enter a valid option!\n")
 
         except ValueError:
-            print("Please enter a valid option!\n")
+            print("\nPlease enter a valid option!\n")
