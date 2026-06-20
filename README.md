@@ -21,7 +21,6 @@ python main.py
 ```
 
 ## Future Improvements
-* Exception handling for invalid inputs
 * Export reports to CSV
 * Edit or delete existing expenses
 * Add graphical insights using matplotlib
