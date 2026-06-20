@@ -64,7 +64,7 @@ def filter_by_parameter(parameter: Literal["date", "category"]):
 
         print(f"The total expense for the {parameter} {req_parameter} is {total_expense_for_parameter}\n")
 
-# not for the user but req in the program as it might be repititve
+# to display all expense categories that user is allowed to enter
 def display_categories():
     print(''' The expenditure categories are: 
 1. Food
