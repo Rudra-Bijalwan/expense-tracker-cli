@@ -59,7 +59,7 @@ def filter_by_parameter(parameter: Literal["date", "category"]):
             total_expense_for_parameter += expense["amount"]
     
     if total_expense_for_parameter == 0:
-        print(f"No expense found for the {parameter} '{req_parameter}'! (Or the {parameter} '{req_parameter}' is not valid.)\n")
+        print(f"No expense found for the {parameter} '{req_parameter}'. (Or the {parameter} '{req_parameter}' is not valid!)\n")
     else:
 
         print(f"The total expense for the {parameter} {req_parameter} is {total_expense_for_parameter}\n")
@@ -131,13 +131,19 @@ def show_monthly_expense_report():
 
     category_total = {category: 0 for category in categories}
 
+    month_found = False
     for expense in expenses:
         if expense["date"].endswith(month):
             total_expense_for_month += expense["amount"]
+            month_found = True
 
             for category in categories:
                 if category == expense["category"]:
                     category_total[category] += expense["amount"]
+    
+    if not month_found:
+        print(f"Expenses not found for the month {month}. (Or the entered month is not valid!)\n")
+        return
     
     print(f"The total expenditure of the month is Rs. {total_expense_for_month}\n")
 
